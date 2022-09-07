@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IProduct } from "../@types";
+import { RootState } from "../store";
 
 interface IProductsContextProps {
-	products: IProduct[];
+	value: IProduct[];
 	loading: boolean;
 }
 
 const initialState: IProductsContextProps = {
-	products: [],
+	value: [],
 	loading: false,
 };
 
@@ -16,7 +17,7 @@ const productsSlice = createSlice({
 	initialState,
 	reducers: {
 		products: (state, action: PayloadAction<IProduct[]>) => {
-			state.products = action.payload;
+			state.value = action.payload;
 		},
 		loading: (state, action: PayloadAction<boolean>) => {
 			state.loading = action.payload;
@@ -25,5 +26,8 @@ const productsSlice = createSlice({
 });
 
 export const { products, loading } = productsSlice.actions;
+
+//* Selector
+export const productsValue = (state: RootState) => state.products.value;
 
 export default productsSlice.reducer;
