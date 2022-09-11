@@ -1,26 +1,52 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography } from "@mui/material"
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Modal, Typography } from "@mui/material"
 import { GetStaticProps, NextPage } from "next"
+import { AppProps } from "next/app"
 import Link from "next/link"
+import { useRouter } from "next/router"
+import { useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { IProduct } from "../../@types"
+import Product from "../../components/Product"
 import api from "../../services/api"
-import { productsValue } from "../../slices/ProductsSlice"
+import { selected, selectedProductValue } from "../../slices/ProductsSlice"
 import { products } from "../../slices/ProductsSlice"
 
 interface IProductsProps {
 	products: IProduct[]
+	pageProps: AppProps
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-	const { data } = await api.get<IProduct[]>("/products")
+	const { data } = await api.get<IProduct[]>("/products?_start=0&_end=10")
 
-	return { props: { products: data }, revalidate: 60 }
+	return { props: { products: data }, revalidate: 10 }
 }
 
-const Products: NextPage<IProductsProps> = ({ products: data }: IProductsProps) => {
+const style = {
+	position: "absolute" as "absolute",
+	top: "50%",
+	left: "50%",
+	transform: "translate(-50%, -50%)",
+	width: 400,
+	bgcolor: "background.paper",
+	border: "2px solid #000",
+	boxShadow: 24,
+	p: 4
+}
+
+const Products: NextPage<IProductsProps> = ({ products: data, pageProps }: IProductsProps) => {
+	const router = useRouter()
 	const dispatch = useDispatch()
 	dispatch(products(data))
-	// const products = useSelector(productsValue)
+	const selectedProduct = useSelector(selectedProductValue)
+	const buttonRef = useRef<HTMLButtonElement>()
+
+	const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, product: IProduct) => {
+		// console.log(e.target)
+		// e.preventDefault()
+		buttonRef.current = e.target as HTMLButtonElement
+		dispatch(selected(product))
+	}
 
 	return (
 		<>
@@ -45,8 +71,8 @@ const Products: NextPage<IProductsProps> = ({ products: data }: IProductsProps) 
 								</Typography>
 							</CardContent>
 							<CardActions sx={{ justifyContent: "flex-end" }}>
-								<Link href={`/products/${product.id}`} passHref>
-									<Button variant="outlined" size="small">
+								<Link href={`/products?product=${product.id}`} as={`/products/${product.id}`} passHref>
+									<Button component="a" variant="outlined" size="small" onClick={e => handleClick(e, product)}>
 										Learn More
 									</Button>
 								</Link>
@@ -55,6 +81,19 @@ const Products: NextPage<IProductsProps> = ({ products: data }: IProductsProps) 
 					</Grid>
 				))}
 			</Grid>
+
+			<Modal
+				// disableScrollLock={true}
+				// disableAutoFocus={true}
+				// container={() => buttonRef.current!.closest(".MuiCard-root")}
+				open={!!router.query.product}
+				onClose={() => router.push("/products")}
+				aria-labelledby={selectedProduct?.title}
+				aria-describedby={selectedProduct?.description}>
+				<Box sx={style}>
+					<Product product={selectedProduct!} />
+				</Box>
+			</Modal>
 		</>
 	)
 }

@@ -5,11 +5,13 @@ import { RootState } from "../store";
 interface IProductsContextProps {
 	value: IProduct[];
 	loading: boolean;
+	selected: IProduct | null;
 }
 
 const initialState: IProductsContextProps = {
 	value: [],
 	loading: false,
+	selected: null
 };
 
 const productsSlice = createSlice({
@@ -19,15 +21,19 @@ const productsSlice = createSlice({
 		products: (state, action: PayloadAction<IProduct[]>) => {
 			state.value = action.payload;
 		},
+		selected: (state, action: PayloadAction<IProduct>) => {
+			state.selected = action.payload;
+		},
 		loading: (state, action: PayloadAction<boolean>) => {
 			state.loading = action.payload;
 		},
 	}
 });
 
-export const { products, loading } = productsSlice.actions;
+export const { products, selected, loading } = productsSlice.actions;
 
-//* Selector
+//* Selectors
 export const productsValue = (state: RootState) => state.products.value;
+export const selectedProductValue = (state: RootState) => state.products.selected;
 
 export default productsSlice.reducer;

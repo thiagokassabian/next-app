@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { themeMode, themeModeValue } from "../slices/ThemeSlice"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
+import Link from "next/link"
 
 export default function Header() {
 	const trigger = useScrollTrigger()
@@ -17,7 +18,9 @@ export default function Header() {
 				<AppBar color="primary">
 					<Toolbar>
 						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-							nextjs-products
+							<Link href={"/products"}>
+								<a style={{ color: "inherit", textDecoration: "none" }}>nextjs-products</a>
+							</Link>
 						</Typography>
 						<Button
 							color="inherit"
